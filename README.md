@@ -33,6 +33,15 @@ Este repositorio contiene la implementación de un microservicio **reactivo** pa
 
 ---
 
+## 📚 Documentación API
+
+Se ha implementado documentación básica con Swagger UI que puede ser accedida a través del navegador en:
+```
+/api/webjars/swagger-ui/index.html#/
+```
+
+---
+
 ## 🚀 Ejecución con Docker
 
 ```bash
