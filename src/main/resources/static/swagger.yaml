@@ -1,0 +1,469 @@
+openapi: 3.0.3
+info:
+  title: Prueba Técnica Backend – Accenture
+  version: 0.0.1
+  description: |
+    API reactiva para gestión de franquicias, sucursales y productos,
+    implementada con Spring WebFlux, R2DBC y Flyway.
+
+servers:
+  - url: http://localhost:8080/api/v1/rest
+    description: Servidor local
+
+paths:
+  /franchises:
+    post:
+      summary: Crear nueva franquicia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FranchiseRequest'
+      responses:
+        '201':
+          description: Franquicia creada
+          headers:
+            Location:
+              description: URL del nuevo recurso
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFranchise'
+        '400':
+          description: Datos inválidos
+    get:
+      summary: Listar todas las franquicias
+      responses:
+        '200':
+          description: Lista de franquicias
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFranchises'
+        '204':
+          description: Ninguna franquicia encontrada
+
+  /franchises/{id}:
+    get:
+      summary: Obtener franquicia por ID
+      parameters:
+        - $ref: '#/components/parameters/FranchiseId'
+      responses:
+        '200':
+          description: Franquicia encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFranchise'
+        '404':
+          description: No encontrada
+    delete:
+      summary: Eliminar franquicia por ID
+      parameters:
+        - $ref: '#/components/parameters/FranchiseId'
+      responses:
+        '200':
+          description: Franquicia eliminada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFranchise'
+
+  /franchises/name/{id}:
+    put:
+      summary: Actualizar nombre de franquicia
+      parameters:
+        - $ref: '#/components/parameters/FranchiseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FranchiseRequest'
+      responses:
+        '200':
+          description: Nombre actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseFranchise'
+        '404':
+          description: No encontrada
+
+  /branches:
+    post:
+      summary: Crear nueva sucursal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+      responses:
+        '201':
+          description: Sucursal creada
+          headers:
+            Location:
+              description: URL del nuevo recurso
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBranch'
+        '400':
+          description: Datos inválidos
+    get:
+      summary: Listar todas las sucursales
+      responses:
+        '200':
+          description: Lista de sucursales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBranches'
+
+  /branches/{id}:
+    get:
+      summary: Obtener sucursal por ID
+      parameters:
+        - $ref: '#/components/parameters/BranchId'
+      responses:
+        '200':
+          description: Sucursal encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBranch'
+        '404':
+          description: No encontrada
+    delete:
+      summary: Eliminar sucursal por ID
+      parameters:
+        - $ref: '#/components/parameters/BranchId'
+      responses:
+        '200':
+          description: Sucursal eliminada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBranch'
+
+  /branches/franchise/{franchiseId}:
+    get:
+      summary: Listar sucursales de una franquicia
+      parameters:
+        - $ref: '#/components/parameters/FranchiseId'
+      responses:
+        '200':
+          description: Sucursales para la franquicia
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBranches'
+
+  /branches/name/{id}:
+    put:
+      summary: Actualizar nombre de sucursal
+      parameters:
+        - $ref: '#/components/parameters/BranchId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+      responses:
+        '200':
+          description: Nombre actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBranch'
+        '404':
+          description: No encontrada
+
+  /products:
+    post:
+      summary: Crear nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '201':
+          description: Producto creado
+          headers:
+            Location:
+              description: URL del nuevo recurso
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProduct'
+        '400':
+          description: Datos inválidos
+    get:
+      summary: Listar todos los productos
+      responses:
+        '200':
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProducts'
+
+  /products/{id}:
+    get:
+      summary: Obtener producto por ID
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProduct'
+        '404':
+          description: No encontrado
+    delete:
+      summary: Eliminar producto por ID
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Producto eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProduct'
+
+  /products/branch/{branchId}:
+    get:
+      summary: Listar productos de una sucursal
+      parameters:
+        - $ref: '#/components/parameters/BranchId'
+      responses:
+        '200':
+          description: Productos para la sucursal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProducts'
+
+  /products/top-stock/franchise/{franchiseId}:
+    get:
+      summary: Producto de mayor stock por sucursal para una franquicia
+      parameters:
+        - $ref: '#/components/parameters/FranchiseId'
+      responses:
+        '200':
+          description: Top productos por sucursal
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /products/amount/{id}:
+    put:
+      summary: Actualizar cantidad de producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '200':
+          description: Cantidad actualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProduct'
+        '404':
+          description: No encontrado
+
+  /products/name/{id}:
+    put:
+      summary: Actualizar nombre de producto
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '200':
+          description: Nombre actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProduct'
+        '404':
+          description: No encontrado
+
+components:
+  parameters:
+    FranchiseId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BranchId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProductId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    ResponseFranchise:
+      type: object
+      properties:
+        status:
+          type: string
+          example: CREATED
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Franchise'
+        message:
+          type: string
+          example: Franchise created successfully
+
+    ResponseFranchises:
+      allOf:
+        - $ref: '#/components/schemas/ResponseFranchise'
+
+    ResponseBranch:
+      type: object
+      properties:
+        status:
+          type: string
+          example: CREATED
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Branch'
+        message:
+          type: string
+          example: Branch created successfully
+
+    ResponseBranches:
+      allOf:
+        - $ref: '#/components/schemas/ResponseBranch'
+
+    ResponseProduct:
+      type: object
+      properties:
+        status:
+          type: string
+          example: CREATED
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        message:
+          type: string
+          example: Product created successfully
+
+    ResponseProducts:
+      allOf:
+        - $ref: '#/components/schemas/ResponseProduct'
+
+    FranchiseRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: example Franchie 2
+
+    BranchRequest:
+      type: object
+      required:
+        - name
+        - franchiseId
+      properties:
+        name:
+          type: string
+          example: example branch 2
+        franchiseId:
+          type: string
+          format: uuid
+          example: 8b5e0649-f3bc-4cfe-9916-f9d00cc339b0
+
+    ProductRequest:
+      type: object
+      required:
+        - name
+        - branchId
+        - amount
+      properties:
+        name:
+          type: string
+          example: Product example 2 1
+        branchId:
+          type: string
+          format: uuid
+          example: 2906c1ea-35f6-4913-85b0-17381618bfe7
+        amount:
+          type: integer
+          example: 20
+
+    Franchise:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    Branch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        franchise:
+          $ref: '#/components/schemas/Franchise'
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        amount:
+          type: integer
+        branch:
+          $ref: '#/components/schemas/Branch'
